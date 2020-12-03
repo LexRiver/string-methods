@@ -11,12 +11,10 @@
     },
     "keywords": [
         "typescript",
-        "observable",
-        "value",
-        "variable",
-        "map",
-        "array",
-        "event"
+        "string methods",
+        "email",
+        "digits",
+        "plural number"
     ],
     "author": "LexRiver <LexRiver@gmail.com> (https://github.com/LexRiver/)",
     "license": "MIT",
