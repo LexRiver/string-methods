@@ -1,5 +1,5 @@
-
-import { StringMethods } from "./StringMethods"
+import { expect, test } from 'vitest'
+import { StringMethods } from "./StringMethods.mjs"
 
 test('plural', () => {
     let settings:StringMethods.LocaleSettings = {
