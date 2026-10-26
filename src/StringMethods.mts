@@ -34,29 +34,58 @@ export module StringMethods{
     }
 
 
-    export type LocaleSettings = {
-        locale?:string, 
-        ifZero:(x:number)=>any, 
-        ifOne:(x:number)=>any,
-        ifFew:(x:number)=>any,
-        ifMany:(x:number)=>any
+    export type PluralNumberFormatter = (x:number)=>any
+
+    type PluralCategorySettings = {
+        locale?:string,
+        ifZero?:PluralNumberFormatter,
+        ifOne?:PluralNumberFormatter,
+        ifTwo?:PluralNumberFormatter,
+        ifFew?:PluralNumberFormatter,
+        ifMany?:PluralNumberFormatter,
+        ifOther?:PluralNumberFormatter
     }
+
+    export type LocaleSettings = PluralCategorySettings & (
+        { ifOther:PluralNumberFormatter } |
+        {
+            ifZero:PluralNumberFormatter,
+            ifOne:PluralNumberFormatter,
+            ifFew:PluralNumberFormatter,
+            ifMany:PluralNumberFormatter
+        }
+    )
 
 
     export function formatPluralNumber(p:{
         number:number,
         settings:LocaleSettings
     }){
-        if(p.number == 0) {
+        if(p.number == 0 && p.settings.ifZero) {
             return p.settings.ifZero(p.number)
         }
-        const sentenceType = new Intl.PluralRules(p.settings.locale).select(p.number)
-        switch(sentenceType){
-            case 'one': return p.settings.ifOne(p.number)
-            case 'few': return p.settings.ifFew(p.number)
-            case 'many': return p.settings.ifMany(p.number)
-            default: throw new Error()
+
+        const pluralCategory = new Intl.PluralRules(p.settings.locale).select(p.number)
+        const categoryHandlers:Partial<Record<Intl.LDMLPluralRule, PluralNumberFormatter>> = {
+            zero:p.settings.ifZero,
+            one:p.settings.ifOne,
+            two:p.settings.ifTwo,
+            few:p.settings.ifFew,
+            many:p.settings.ifMany,
+            other:p.settings.ifOther
         }
+        const handler = categoryHandlers[pluralCategory]
+            ?? p.settings.ifOther
+            ?? p.settings.ifMany
+            ?? p.settings.ifFew
+            ?? p.settings.ifTwo
+            ?? p.settings.ifOne
+            ?? p.settings.ifZero
+
+        if(!handler) {
+            throw new Error(`No plural formatter available for category "${pluralCategory}"`)
+        }
+        return handler(p.number)
 
     }
 

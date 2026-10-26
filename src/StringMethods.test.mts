@@ -23,6 +23,50 @@ test('plural', () => {
 
 })
 
+test('supports every Intl plural category', () => {
+    const settings:StringMethods.LocaleSettings = {
+        locale:'ar',
+        ifZero:() => 'zero',
+        ifOne:() => 'one',
+        ifTwo:() => 'two',
+        ifFew:() => 'few',
+        ifMany:() => 'many',
+        ifOther:() => 'other'
+    }
+
+    expect(StringMethods.formatPluralNumber({ number: 0, settings })).toBe('zero')
+    expect(StringMethods.formatPluralNumber({ number: 1, settings })).toBe('one')
+    expect(StringMethods.formatPluralNumber({ number: 2, settings })).toBe('two')
+    expect(StringMethods.formatPluralNumber({ number: 3, settings })).toBe('few')
+    expect(StringMethods.formatPluralNumber({ number: 11, settings })).toBe('many')
+    expect(StringMethods.formatPluralNumber({ number: 100, settings })).toBe('other')
+})
+
+test('uses other for English zero, plurals, and decimals', () => {
+    const settings:StringMethods.LocaleSettings = {
+        locale:'en',
+        ifOne:(x) => `${x} item`,
+        ifOther:(x) => `${x} items`
+    }
+
+    expect(StringMethods.formatPluralNumber({ number: 0, settings })).toBe('0 items')
+    expect(StringMethods.formatPluralNumber({ number: 1, settings })).toBe('1 item')
+    expect(StringMethods.formatPluralNumber({ number: 2, settings })).toBe('2 items')
+    expect(StringMethods.formatPluralNumber({ number: 1.5, settings })).toBe('1.5 items')
+})
+
+test('falls back safely for legacy settings without other', () => {
+    const settings:StringMethods.LocaleSettings = {
+        locale:'en',
+        ifZero:() => 'none',
+        ifOne:(x) => `${x} item`,
+        ifFew:(x) => `${x} items`,
+        ifMany:(x) => `${x} items`
+    }
+
+    expect(StringMethods.formatPluralNumber({ number: 1.5, settings })).toBe('1.5 items')
+})
+
 test('simpleHash', () => {
     console.log('a=', StringMethods.getSimpleHash('a'))
     console.log('b=', StringMethods.getSimpleHash('b'))

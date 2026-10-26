@@ -59,14 +59,18 @@ Arguments
     StringMethods.formatPluralNumber(p:{
         number: number,
          settings: { // StringMethods.LocaleSettings type
-            locale?:string, 
-            ifZero:(x:number)=>any, 
-            ifOne:(x:number)=>any,
-            ifFew:(x:number)=>any,
-            ifMany:(x:number)=>any
+            locale?:string,
+            ifZero?:(x:number)=>any,
+            ifOne?:(x:number)=>any,
+            ifTwo?:(x:number)=>any,
+            ifFew?:(x:number)=>any,
+            ifMany?:(x:number)=>any,
+            ifOther:(x:number)=>any
         }
     }
 ```
+
+The handlers correspond to all `Intl.PluralRules` categories. New settings should provide `ifOther`, which is used whenever the locale-specific handler is absent. Existing settings with `ifZero`, `ifOne`, `ifFew`, and `ifMany` remain supported; when such legacy settings encounter `two` or `other`, the closest available handler is used as a safe fallback. An explicit `ifZero` continues to override the locale rule for numeric zero.
 
 Example
 
